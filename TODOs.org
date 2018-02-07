@@ -1,0 +1,7 @@
+# TODOs
+
+* TODO 下载壁纸
+  
+* TODO 学习算法
+
+* TODO 用户接口
