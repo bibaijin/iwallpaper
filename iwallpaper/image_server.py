@@ -2,9 +2,7 @@ import requests
 import time
 from lxml import html
 import logging
-from io import BytesIO
 import peewee as pw
-from PIL import Image
 
 import iwallpaper.model as model
 import iwallpaper.util as util
@@ -16,7 +14,8 @@ class ImageServer:
         raise NotImplementedError()
 
     def save(self, image_model, image_bytes):
-        Image.open(BytesIO(image_bytes)).save(self.get_image_path(image_model))
+        with open(self.get_image_path(image_model), 'wb') as f:
+            f.write(image_bytes)
 
     def get_image_path(self, image_model):
         return '{}/{}.{}'.format(CONFIG.download_home, image_model.hashsum,
@@ -57,4 +56,4 @@ class Wallhaven(ImageServer):
                 'model.Image.create() failed, error: {}, will retry soon...'.
                 format(e))
             time.sleep(1)
-            return self.select_one()
+            return self.fetch_one()

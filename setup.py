@@ -19,8 +19,7 @@ setup(
     author_email='bibaijin@gmail.com',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=[
-        'lxml>=4.1', 'peewee>=3.1', 'Pillow>=5.0', 'pytest>=3.4',
-        'requests>=2.18'
+        'lxml>=4.1', 'peewee>=3.1', 'pytest>=3.4', 'requests>=2.18'
     ],
     entry_points={
         'console_scripts': [
