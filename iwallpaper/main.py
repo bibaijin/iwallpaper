@@ -13,6 +13,7 @@ def main():
         CONFIG.db.create_tables([Image])
         w = Wallhaven()
         image = w.fetch_one()
+        w.set_wallpaper(image)
         print(image)
     finally:
         CONFIG.db.close()

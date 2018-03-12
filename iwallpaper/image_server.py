@@ -3,6 +3,7 @@ import time
 from lxml import html
 import logging
 import peewee as pw
+import subprocess
 
 import iwallpaper.model as model
 import iwallpaper.util as util
@@ -16,6 +17,9 @@ class ImageServer:
     def save(self, image_model, image_bytes):
         with open(self.get_image_path(image_model), 'wb') as f:
             f.write(image_bytes)
+
+    def set_wallpaper(self, image_model):
+        subprocess.run(['feh', '--bg-max', self.get_image_path(image_model)])
 
     def get_image_path(self, image_model):
         return '{}/{}.{}'.format(CONFIG.download_home, image_model.hashsum,
