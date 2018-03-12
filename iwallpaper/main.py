@@ -1,20 +1,20 @@
 import logging
+import wx
 
-from iwallpaper.image_server import Wallhaven
 from iwallpaper.config import CONFIG
 from iwallpaper.model import Image
+from iwallpaper.tray import TrayFrame
 
 
 def main():
     logging.basicConfig(level=logging.INFO, format=CONFIG.log_format)
     CONFIG.makedirs()
+    app = wx.App()
+    TrayFrame().Iconize()
     try:
         CONFIG.db.connect()
         CONFIG.db.create_tables([Image])
-        w = Wallhaven()
-        image = w.fetch_one()
-        w.set_wallpaper(image)
-        print(image)
+        app.MainLoop()
     finally:
         CONFIG.db.close()
 

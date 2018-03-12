@@ -21,6 +21,10 @@ class ImageServer:
     def set_wallpaper(self, image_model):
         subprocess.run(['feh', '--bg-max', self.get_image_path(image_model)])
 
+    def update_rank(self, image_model, rank):
+        image_model.rank = rank
+        image_model.save()
+
     def get_image_path(self, image_model):
         return '{}/{}.{}'.format(CONFIG.download_home, image_model.hashsum,
                                  image_model.filetype)
