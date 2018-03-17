@@ -3,12 +3,14 @@ import requests
 import time
 from lxml import html
 import logging
+import os
 import peewee as pw
 import subprocess
 import threading
 
 import iwallpaper.model as model
 import iwallpaper.util as util
+import iwallpaper.ai as ai
 
 
 class ImageServer:
@@ -71,6 +73,17 @@ class Daemon(threading.Thread):
             for server in self.__image_servers:
                 time.sleep(300)
                 self.__download_one(server)
+                self.__clean()
+
+    def __clean(self):
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        query = model.Image.select().where(model.Image.updated_at < yesterday,
+                                           model.Image.rank < 5)
+        for image in query:
+            logging.info('Image: {} will be deleted...'.format(image))
+            os.remove(util.get_image_path(image.hashsum, image.filetype))
+            image.delete_instance()
+            logging.info('Image: {} will be deleted...'.format(image))
 
     def __download_one(self, server):
         logging.info('Downloading a wallpaper from {}...'.format(server.home))
@@ -88,7 +101,8 @@ class Daemon(threading.Thread):
 
             self.__set_wallpaper(images[0])
             self.image = images[0]
-            return self.image
+            self.predict_rank = ai.NETWORK.predict(images[0])
+            return
 
         query = model.Image.select().where(
             model.Image.id > self.image.id,
@@ -100,7 +114,8 @@ class Daemon(threading.Thread):
 
         self.__set_wallpaper(images[0])
         self.image = images[0]
-        return self.image
+        self.predict_rank = ai.NETWORK.predict(images[0])
+        return
 
     def previous_image(self):
         if self.image is None:
@@ -118,23 +133,31 @@ class Daemon(threading.Thread):
         self.image = images[0]
         return self.image
 
-    def delete_image(self):
-        if self.image is None:
-            return self.next_image()
+    # def delete_image(self):
+    #     if self.image is None:
+    #         return self.next_image()
 
-        self.image.is_deleted = True
-        self.image.updated_at = datetime.datetime.now()
-        self.image.save()
-        return self.next_image()
+    #     logging.info('{} will be deleted.'.format(self.image))
+    #     self.image.is_deleted = True
+    #     self.image.updated_at = datetime.datetime.now()
+    #     self.image.save()
+    #     os.remove(util.get_image_path(self.image.hashsum, self.image.filetype))
+    #     return self.next_image()
 
     def rank_image(self, rank):
         if self.image is None:
             return None
 
-        logging.info('{} will be ranked as {}.'.format(self.image, rank))
+        logging.info('Image: {} will be ranked as {}.'.format(
+            self.image, rank))
         self.image.rank = rank
         self.image.updated_at = datetime.datetime.now()
         self.image.save()
+        logging.info('Image: {} has been ranked as {}.'.format(
+            self.image, rank))
+
+        lambda_ = 1
+        ai.NETWORK.optimize(self.image, self.predict_rank, rank, lambda_)
         return self.image
 
     def __set_wallpaper(self, image):

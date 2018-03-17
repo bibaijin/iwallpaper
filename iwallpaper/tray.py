@@ -8,13 +8,12 @@ class TrayIcon(wx.adv.TaskBarIcon):
     TBMENU_CURRENT = wx.NewId()
     TBMENU_NEXT = wx.NewId()
     TBMENU_PREVIOUS = wx.NewId()
-    TBMENU_DELETE = wx.NewId()
+    # TBMENU_DELETE = wx.NewId()
     TBMENU_RANK_5 = wx.NewId()
     TBMENU_RANK_4 = wx.NewId()
     TBMENU_RANK_3 = wx.NewId()
     TBMENU_RANK_2 = wx.NewId()
     TBMENU_RANK_1 = wx.NewId()
-    TBMENU_RANK_0 = wx.NewId()
     TBMENU_CLOSE = wx.NewId()
 
     def __init__(self, frame, daemon):
@@ -32,13 +31,12 @@ class TrayIcon(wx.adv.TaskBarIcon):
         self.SetIcon(self.icon, 'iWallpaper')
         self.Bind(wx.EVT_MENU, self.OnNext, id=self.TBMENU_NEXT)
         self.Bind(wx.EVT_MENU, self.OnPrevious, id=self.TBMENU_PREVIOUS)
-        self.Bind(wx.EVT_MENU, self.OnDelete, id=self.TBMENU_DELETE)
+        # self.Bind(wx.EVT_MENU, self.OnDelete, id=self.TBMENU_DELETE)
         self.Bind(wx.EVT_MENU, self.OnRank5, id=self.TBMENU_RANK_5)
         self.Bind(wx.EVT_MENU, self.OnRank4, id=self.TBMENU_RANK_4)
         self.Bind(wx.EVT_MENU, self.OnRank3, id=self.TBMENU_RANK_3)
         self.Bind(wx.EVT_MENU, self.OnRank2, id=self.TBMENU_RANK_2)
         self.Bind(wx.EVT_MENU, self.OnRank1, id=self.TBMENU_RANK_1)
-        self.Bind(wx.EVT_MENU, self.OnRank0, id=self.TBMENU_RANK_0)
         self.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=self.TBMENU_CLOSE)
         self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.OnTaskBarLeftClick)
 
@@ -51,20 +49,18 @@ class TrayIcon(wx.adv.TaskBarIcon):
         menu.Append(self.TBMENU_NEXT, 'Next')
         menu.Append(self.TBMENU_PREVIOUS, 'Previous')
         menu.Enable(self.TBMENU_PREVIOUS, self.__enable_menu_previous)
-        menu.Append(self.TBMENU_DELETE, 'Delete')
+        # menu.Append(self.TBMENU_DELETE, 'Delete')
         menu.AppendSeparator()
-        menu.Append(self.TBMENU_RANK_5, 'Rank 5')
+        menu.Append(self.TBMENU_RANK_5, 'Rank as 5 stars')
         menu.Enable(self.TBMENU_RANK_5, self.__enable_menu_rank)
-        menu.Append(self.TBMENU_RANK_4, 'Rank 4')
+        menu.Append(self.TBMENU_RANK_4, 'Rank as 4 stars')
         menu.Enable(self.TBMENU_RANK_4, self.__enable_menu_rank)
-        menu.Append(self.TBMENU_RANK_3, 'Rank 3')
+        menu.Append(self.TBMENU_RANK_3, 'Rank as 3 stars')
         menu.Enable(self.TBMENU_RANK_3, self.__enable_menu_rank)
-        menu.Append(self.TBMENU_RANK_2, 'Rank 2')
+        menu.Append(self.TBMENU_RANK_2, 'Rank as 2 stars')
         menu.Enable(self.TBMENU_RANK_2, self.__enable_menu_rank)
-        menu.Append(self.TBMENU_RANK_1, 'Rank 1')
+        menu.Append(self.TBMENU_RANK_1, 'Rank as 1 star')
         menu.Enable(self.TBMENU_RANK_1, self.__enable_menu_rank)
-        menu.Append(self.TBMENU_RANK_0, 'Rank 0')
-        menu.Enable(self.TBMENU_RANK_0, self.__enable_menu_rank)
         menu.AppendSeparator()
         menu.Append(self.TBMENU_CLOSE, 'Exit')
         self.menu = menu
@@ -81,15 +77,16 @@ class TrayIcon(wx.adv.TaskBarIcon):
         if self.daemon.image is None:
             return 'Current: None'
 
-        return 'Current {}:{}'.format(self.daemon.image.hashsum[0:4],
-                                      self.daemon.image.rank)
+        return 'Current {}/{}/{}'.format(self.daemon.image.hashsum[0:4],
+                                         self.daemon.predict_rank,
+                                         self.daemon.image.rank)
 
     def OnPrevious(self, evt):
         if self.daemon.previous_image() is None:
             self.__enable_menu_previous = False
 
-    def OnDelete(self, evt):
-        self.daemon.delete_image()
+    # def OnDelete(self, evt):
+    #     self.daemon.delete_image()
 
     def OnRank5(self, evt):
         if self.daemon.rank_image(5) is None:
@@ -109,10 +106,6 @@ class TrayIcon(wx.adv.TaskBarIcon):
 
     def OnRank1(self, evt):
         if self.daemon.rank_image(1) is None:
-            self.__enable_menu_rank = False
-
-    def OnRank0(self, evt):
-        if self.daemon.rank_image(0) is None:
             self.__enable_menu_rank = False
 
     def OnTaskBarClose(self, evt):

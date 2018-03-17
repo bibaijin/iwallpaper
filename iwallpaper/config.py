@@ -12,8 +12,18 @@ class Config:
                                     '{}/.config'.format(home))
         self.home = '{}/iwallpaper'.format(xdg_config_home)
         self.download_home = '{}/downloads'.format(self.home)
+        self.theta_file = '{}/theta.npy'.format(self.home)
+        self.J_file = '{}/J.csv'.format(self.home)
         self.db = pw.SqliteDatabase('{}/iwallpaper.db'.format(self.home))
         self.log_format = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
+        self.standard_height = 1080
+        self.standard_width = 1920
+        zoom_ratio = 10
+        self.resized_height = int(self.standard_height / zoom_ratio)
+        self.resized_width = int(self.standard_height / zoom_ratio)
+        self.a1_number = 2 + self.resized_height * self.resized_width * 3
+        self.a2_number = 20
+        self.a3_number = 5
 
     def makedirs(self):
         for p in [self.download_home]:

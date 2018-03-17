@@ -11,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='iwallpaper',
-    version='0.0.1',
+    version='0.1.0',
     description='An Intelligent Wallpaper Manager',
     long_description=long_description,
     url='https://github.com/bibaijin/iwallpaper',
@@ -19,7 +19,9 @@ setup(
     author_email='bibaijin@gmail.com',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=[
-        'lxml>=4.1', 'peewee>=3.1', 'pytest>=3.4', 'requests>=2.18'
+        'lxml>=4.1', 'matplotlib>=2.2', 'numpy>=1.14', 'opencv-python>=3.4',
+        'peewee>=3.1', 'pytest>=3.4', 'requests>=2.18', 'scipy>=1.0',
+        'wxPython>=4.0'
     ],
     entry_points={
         'console_scripts': [
