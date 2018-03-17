@@ -80,10 +80,24 @@ class Daemon(threading.Thread):
         query = model.Image.select().where(model.Image.updated_at < yesterday,
                                            model.Image.rank < 5)
         for image in query:
-            logging.info('Image: {} will be deleted...'.format(image))
+            self.__delete_image(image)
+
+    def __delete_image(self, image):
+        logging.info('Image: {} will be deleted...'.format(image))
+        try:
             os.remove(util.get_image_path(image.hashsum, image.filetype))
+            logging.info('Image: {} has been deleted.'.format(image))
+        except Exception as e:
+            logging.error('os.remove() failed, error: {}.'.format(e))
+        finally:
             image.delete_instance()
-            logging.info('Image: {} will be deleted...'.format(image))
+
+    def delete_image(self):
+        if self.image is None:
+            return self.next_image()
+
+        self.__delete_image(self.image)
+        return self.next_image()
 
     def __download_one(self, server):
         logging.info('Downloading a wallpaper from {}...'.format(server.home))
@@ -131,18 +145,8 @@ class Daemon(threading.Thread):
 
         self.__set_wallpaper(images[0])
         self.image = images[0]
+        self.predict_rank = ai.NETWORK.predict(images[0])
         return self.image
-
-    # def delete_image(self):
-    #     if self.image is None:
-    #         return self.next_image()
-
-    #     logging.info('{} will be deleted.'.format(self.image))
-    #     self.image.is_deleted = True
-    #     self.image.updated_at = datetime.datetime.now()
-    #     self.image.save()
-    #     os.remove(util.get_image_path(self.image.hashsum, self.image.filetype))
-    #     return self.next_image()
 
     def rank_image(self, rank):
         if self.image is None:

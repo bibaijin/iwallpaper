@@ -8,7 +8,7 @@ class TrayIcon(wx.adv.TaskBarIcon):
     TBMENU_CURRENT = wx.NewId()
     TBMENU_NEXT = wx.NewId()
     TBMENU_PREVIOUS = wx.NewId()
-    # TBMENU_DELETE = wx.NewId()
+    TBMENU_DELETE = wx.NewId()
     TBMENU_RANK_5 = wx.NewId()
     TBMENU_RANK_4 = wx.NewId()
     TBMENU_RANK_3 = wx.NewId()
@@ -31,7 +31,7 @@ class TrayIcon(wx.adv.TaskBarIcon):
         self.SetIcon(self.icon, 'iWallpaper')
         self.Bind(wx.EVT_MENU, self.OnNext, id=self.TBMENU_NEXT)
         self.Bind(wx.EVT_MENU, self.OnPrevious, id=self.TBMENU_PREVIOUS)
-        # self.Bind(wx.EVT_MENU, self.OnDelete, id=self.TBMENU_DELETE)
+        self.Bind(wx.EVT_MENU, self.OnDelete, id=self.TBMENU_DELETE)
         self.Bind(wx.EVT_MENU, self.OnRank5, id=self.TBMENU_RANK_5)
         self.Bind(wx.EVT_MENU, self.OnRank4, id=self.TBMENU_RANK_4)
         self.Bind(wx.EVT_MENU, self.OnRank3, id=self.TBMENU_RANK_3)
@@ -49,7 +49,7 @@ class TrayIcon(wx.adv.TaskBarIcon):
         menu.Append(self.TBMENU_NEXT, 'Next')
         menu.Append(self.TBMENU_PREVIOUS, 'Previous')
         menu.Enable(self.TBMENU_PREVIOUS, self.__enable_menu_previous)
-        # menu.Append(self.TBMENU_DELETE, 'Delete')
+        menu.Append(self.TBMENU_DELETE, 'Delete')
         menu.AppendSeparator()
         menu.Append(self.TBMENU_RANK_5, 'Rank as 5 stars')
         menu.Enable(self.TBMENU_RANK_5, self.__enable_menu_rank)
@@ -85,8 +85,8 @@ class TrayIcon(wx.adv.TaskBarIcon):
         if self.daemon.previous_image() is None:
             self.__enable_menu_previous = False
 
-    # def OnDelete(self, evt):
-    #     self.daemon.delete_image()
+    def OnDelete(self, evt):
+        self.daemon.delete_image()
 
     def OnRank5(self, evt):
         if self.daemon.rank_image(5) is None:
