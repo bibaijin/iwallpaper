@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from codecs import open
 from os import path
 
@@ -17,7 +17,8 @@ setup(
     url='https://github.com/bibaijin/iwallpaper',
     author='bibaijin',
     author_email='bibaijin@gmail.com',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=['iwallpaper'],
+    data_files=[('iwallpaper', ['iwallpaper/favicon.ico'])],
     install_requires=[
         'lxml>=4.1', 'matplotlib>=2.2', 'numpy>=1.14', 'opencv-python>=3.4',
         'peewee>=3.1', 'pytest>=3.4', 'requests>=2.18', 'scipy>=1.0',

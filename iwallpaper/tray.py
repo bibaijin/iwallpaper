@@ -1,5 +1,6 @@
 import wx
 import wx.adv
+import os.path as path
 
 import iwallpaper.image_server as image_server
 
@@ -24,7 +25,8 @@ class TrayIcon(wx.adv.TaskBarIcon):
         self.__enable_menu_previous = True
         self.__enable_menu_rank = True
 
-        img = wx.Image('favicon.ico', wx.BITMAP_TYPE_ANY)
+        img = wx.Image('{}/favicon.ico'.format(
+            path.dirname(path.realpath(__file__))), wx.BITMAP_TYPE_ANY)
         bmp = wx.Bitmap(img)
         self.icon = wx.Icon()
         self.icon.CopyFromBitmap(bmp)
