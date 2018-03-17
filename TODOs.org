@@ -1,7 +1,10 @@
 # TODOs
 
-* TODO 下载壁纸
+* DONE 下载壁纸
+  CLOSED: [2018-03-17 Sat 23:17]
   
-* TODO 学习算法
+* DONE 学习算法
+  CLOSED: [2018-03-17 Sat 23:17]
 
-* TODO 用户接口
+* DONE 用户接口
+  CLOSED: [2018-03-17 Sat 23:17]
