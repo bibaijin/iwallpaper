@@ -76,8 +76,8 @@ class Daemon(threading.Thread):
                 self.__clean()
 
     def __clean(self):
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        query = model.Image.select().where(model.Image.updated_at < yesterday,
+        old_day = datetime.datetime.now() - datetime.timedelta(days=3)
+        query = model.Image.select().where(model.Image.updated_at < old_day,
                                            model.Image.rank < 5)
         for image in query:
             self.__delete_image(image)
@@ -160,9 +160,14 @@ class Daemon(threading.Thread):
         logging.info('Image: {} has been ranked as {}.'.format(
             self.image, rank))
 
-        lambda_ = 1
-        ai.NETWORK.optimize(self.image, self.predict_rank, rank, lambda_)
+        self.__fit()
         return self.image
+
+    def __fit(self):
+        lambda_ = 1
+        query = model.Image.select().where(model.Image.rank > 0)
+        images = [image for image in query]
+        ai.NETWORK.fit(images, lambda_)
 
     def __set_wallpaper(self, image):
         subprocess.run([

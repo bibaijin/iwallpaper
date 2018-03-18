@@ -1,4 +1,5 @@
 import cv2
+import logging
 import numpy as np
 import os.path
 from scipy.optimize import minimize
@@ -79,57 +80,63 @@ class Network:
         '''
         return 1 / (1 + np.exp(-z))
 
-    def J_and_gradient(self, Theta1, Theta2, x, y, lambda_):
+    def J_and_gradient(self, Theta1, Theta2, X, Y, lambda_):
         '''
         J is the cost function
         '''
-        z2 = np.dot(np.r_[1, x], Theta1)
+        m, _ = X.shape
+        z2 = np.dot(np.c_[np.ones((m, 1)), X], Theta1)
         a2 = self.__sigmoid(z2)
-        z3 = np.dot(np.r_[1, a2], Theta2)
+        z3 = np.dot(np.c_[np.ones((m, 1)), a2], Theta2)
         a3 = self.__sigmoid(z3)
-        cost = np.sum(-y * np.log(a3) - (1 - y) * np.log(1 - a3))
+        cost = (1 / m) * np.sum(-Y * np.log(a3) - (1 - Y) * np.log(1 - a3))
         cost += (lambda_ / 2) * (np.sum(Theta1[1:]**2) + np.sum(Theta2[1:]**2))
 
-        delta3 = a3 - y
-        Delta2 = np.outer(np.r_[1, a2], delta3)
-        D2 = Delta2
-        D2[1:, :] += lambda_ * Theta2[1:, :]
-        delta2 = np.dot(delta3, Theta2.T) * self.__sigmoid_gradient(
-            np.r_[0, z2])
-        delta2 = delta2[1:]
-        Delta1 = np.outer(np.r_[1, x], delta2)
-        D1 = Delta1
-        D1[1:, :] += lambda_ * Theta1[1:, :]
+        D2 = np.zeros_like(Theta2)
+        D1 = np.zeros_like(Theta1)
+        for t in range(m):
+            delta3 = a3[t, :] - Y[t, :]
+            Delta2 = np.outer(np.r_[1, a2[t, :]], delta3)
+            D2 += Delta2
+            D2[1:, :] += lambda_ * Theta2[1:, :]
+            delta2 = np.dot(delta3, Theta2.T) * self.__sigmoid_gradient(
+                np.r_[0, z2[t, :]])
+            delta2 = delta2[1:]
+            Delta1 = np.outer(np.r_[1, X[t, :]], delta2)
+            D1 += Delta1
+            D1[1:, :] += lambda_ * Theta1[1:, :]
+        logging.info('J: {}.'.format(cost))
         return cost, D1, D2
 
     def __sigmoid_gradient(self, z):
         g = self.__sigmoid(z)
         return g * (1 - g)
 
-    def __scipy_J_and_gradient(self, theta, x, y, lambda_):
+    def __scipy_J_and_gradient(self, theta, X, Y, lambda_):
         Theta1, Theta2 = self.separate_theta(theta)
-        J, D1, D2 = self.J_and_gradient(Theta1, Theta2, x, y, lambda_)
+        J, D1, D2 = self.J_and_gradient(Theta1, Theta2, X, Y, lambda_)
         return J, self.merge_matrix(D1, D2)
 
-    def optimize(self, image_model, predict_rank, rank, lambda_):
+    def fit(self, image_models, lambda_):
         init_theta = self.init_theta()
-        x = Image(
-            util.get_image_path(image_model.hashsum,
-                                image_model.filetype)).to_x()
-        y = Rank(rank).to_y()
-        J0, _ = self.__scipy_J_and_gradient(init_theta, x, y, lambda_)
+        X = np.array([
+            Image(util.get_image_path(img.hashsum, img.filetype)).to_x()
+            for img in image_models
+        ])
+        Y = np.array([Rank(img.rank).to_y() for img in image_models])
+        J0, _ = self.__scipy_J_and_gradient(init_theta, X, Y, lambda_)
         result = minimize(
             self.__scipy_J_and_gradient,
             x0=init_theta,
-            args=(x, y, lambda_),
+            args=(X, Y, lambda_),
             jac=True,
-            method='CG')
-        if not result.success:
-            raise Exception(result.message)
+            method='CG',
+            options={'maxiter': 200})
 
+        logging.info('result: {}'.format(result))
         self.__save_theta(result.x)
-        self.__save_J(image_model.hashsum, predict_rank, rank, lambda_, J0,
-                      result.fun)
+        # self.__save_J(image_model.hashsum, predict_rank, rank, lambda_, J0,
+        #               result.fun)
 
     def __save_J(selt, hashsum, predict_rank, rank, lambda_, J0, J1):
         with open(CONFIG.J_file, mode='a') as f:
