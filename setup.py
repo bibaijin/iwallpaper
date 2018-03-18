@@ -11,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='iwallpaper',
-    version='1.0.2',
+    version='1.0.3',
     description='An Intelligent Wallpaper Manager',
     long_description=long_description,
     url='https://github.com/bibaijin/iwallpaper',

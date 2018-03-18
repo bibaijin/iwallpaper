@@ -131,7 +131,7 @@ class Network:
             args=(X, Y, lambda_),
             jac=True,
             method='CG',
-            options={'maxiter': 200})
+            options={'maxiter': 10})
 
         logging.info('result: {}'.format(result))
         self.__save_theta(result.x)
