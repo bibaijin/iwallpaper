@@ -18,7 +18,7 @@ class Config:
         self.log_format = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
         self.standard_height = 1080
         self.standard_width = 1920
-        zoom_ratio = 10
+        zoom_ratio = 100
         self.resized_height = int(self.standard_height / zoom_ratio)
         self.resized_width = int(self.standard_height / zoom_ratio)
         self.a1_number = 2 + self.resized_height * self.resized_width * 3

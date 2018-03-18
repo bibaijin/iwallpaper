@@ -78,7 +78,7 @@ class Daemon(threading.Thread):
     def __clean(self):
         old_day = datetime.datetime.now() - datetime.timedelta(days=3)
         query = model.Image.select().where(model.Image.updated_at < old_day,
-                                           model.Image.rank < 5)
+                                           model.Image.rank < 2)
         for image in query:
             self.__delete_image(image)
 

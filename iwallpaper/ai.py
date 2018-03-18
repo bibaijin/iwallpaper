@@ -131,10 +131,10 @@ class Network:
             args=(X, Y, lambda_),
             jac=True,
             method='CG',
-            options={'maxiter': 10})
+            options={'maxiter': 300})
 
         logging.info('result: {}'.format(result))
-        self.__save_theta(result.x)
+        # self.__save_theta(result.x)
         # self.__save_J(image_model.hashsum, predict_rank, rank, lambda_, J0,
         #               result.fun)
 
